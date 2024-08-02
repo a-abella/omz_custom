@@ -48,8 +48,13 @@ function awsp () {
   set_profile() {
     touch "$PROFILE_SOURCE" && dotenv -f "$PROFILE_SOURCE" set AWS_PROFILE="$profile"
     echo "using profile '$profile'"
-    source "$PROFILE_SOURCE"
+    #source "$PROFILE_SOURCE"
     #export AWS_PROFILE="$profile"
+  }
+
+  unset_profile() {
+    touch "$PROFILE_SOURCE" && dotenv -f "$PROFILE_SOURCE" unset AWS_PROFILE
+    echo "unset profile"
   }
 
   case "$1" in
@@ -62,9 +67,7 @@ function awsp () {
       return
     ;;
     -u|--unset|"")
-      echo "unsetting profile"
-      #unset AWS_PROFILE
-      : > "$PROFILE_SOURCE"
+      unset_profile
       return
     ;;
     *)
