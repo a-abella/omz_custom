@@ -12,7 +12,7 @@ function ccat () {
         local file="$@[-1]"
         eval $cmd "$file"
     else
-        cat | eval $cmd
+        eval $cmd
     fi
 }
 function cless () {
