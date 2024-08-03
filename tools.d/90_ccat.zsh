@@ -5,7 +5,7 @@ function ccat () {
     elif command -v chroma &>/dev/null; then
         cmd="chroma --style=dracula --formatter=terminal256"
     else
-        echo "error: pygmentize or chroma not installed" >&2
+        echo "error: pygmentize or chroma not in path" >&2
         return 1
     fi
     if [[ -f "$@[-1]" ]]; then
