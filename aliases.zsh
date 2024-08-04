@@ -1,3 +1,6 @@
+# simple aliases
+#   functions should go in tools.zsh or tools.d/*.zsh
+
 alias lla="ll -a"
 alias l='lla'
 
