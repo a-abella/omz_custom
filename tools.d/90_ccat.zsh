@@ -8,29 +8,44 @@ function ccat () {
         echo "error: pygmentize or chroma not in path" >&2
         return 1
     fi
-    if [[ -f "$@[-1]" ]]; then
-        local file="$@[-1]"
-        eval $cmd "$file"
+    if (( "${#@}" > 0 )); then
+      local file
+      for file in "$@[@]"; do
+        if [[ -f "$file" || -p "$file" ]]; then
+          eval $cmd "$file"
+        elif [[ -d "$file" ]]; then
+          echo -e "ccat: error: '$file' is a directory\n" >&2
+          return 1
+        else
+          echo -e  "ccat: error: file '$file' not found\n" >&2
+          return 1
+        fi
+      done
     else
-        eval $cmd
-    fi
+      eval $cmd
+    fi 
 }
 function cless () {
-    # TODO: handle flags before or after file
-    case "$@[-1]" in
-        -*|"")
-            ccat | less -R $@
-        ;;
-        *)
-            if [[ -f "$@[-1]" ]]; then
-                local file="$@[-1]"
-                ccat "$file" | less -R ${@[@]:1:-1}
-            else
-                echo "error: file not found: $file" >&2
-                return 1
-            fi
-        ;;
-    esac
+    local files=()
+    local flags=()
+    local arg
+    for arg in $@; do
+      [[ "$arg" = "-"* ]] && flags+=( "$arg" ) || files+=( "$arg" )
+    done
+    if (( "${#files}" > 0 )); then
+      if (( "${#files}" > 1 )); then
+        echo "cless: error: too many file arguments" >&2
+        return 1
+      fi
+      local hold
+      hold="$(ccat "$files")"
+      if [[ -n "$hold" ]]; then
+        # the {} and sleep is needed to handle a screen buffer piping issue
+        { sleep 0.01; echo -e "$hold" ;} | less -R $flags
+      fi
+    else 
+      ccat | less -R $flags
+    fi
 }
 compdef _less cless
 
