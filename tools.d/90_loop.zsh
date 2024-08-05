@@ -1,7 +1,7 @@
 # looper
 function loop () {
   sec=1
-  if  [ ! -z "${1##*[!1-9]*}" ] 2>/dev/null; then
+  if  [[ "$1" = <-> ]] ; then
     sec="$1"
     shift
   fi
