@@ -2,6 +2,7 @@
 #   functions should go in tools.zsh or tools.d/*.zsh
 
 # condensers
+## common
 alias l='ll'
 alias la='ll -a'
 alias lr='ll -R'
@@ -9,6 +10,8 @@ alias lar='ll -aR'
 alias lla="ll -a"
 alias llr='ll -R'
 alias llar='ll -aR'
+# azure
+alias azss='az account set --subscription'
 
 # command overrides
 alias tmux='tmux -f "$TMUX_CONF"'
