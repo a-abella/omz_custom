@@ -1,5 +1,5 @@
 ###
-### awsp - aws profile manager
+### awsp - aws profile manager & sync
 ###
 
 PROFILE_SOURCE="$HOME/.aws/source_current_profile"
@@ -11,7 +11,7 @@ function awsp () {
   usage (){
     echo "Usage: awsp (-l/--list) [(-u/--unset) | PROFILE]"
     echo
-    echo "An AWS-CLI profile environment variable manager"
+    echo "An AWS-CLI profile environment variable manager & synchronizer"
     echo
     echo "Options:"
     echo "  -u, --unset    Unsets the AWS_PROFILE environment variable,"
