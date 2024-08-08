@@ -248,14 +248,25 @@ prompt_status() {
 
 #AWS Profile:
 # - display current AWS_PROFILE name
-# - displays yellow on red if profile name contains 'production' or
-#   ends in '-prod'
-# - displays black on green otherwise
+# - displays a warning symbol if the profile name DOES NOT end in -dev or -test (case-insensitive)
 prompt_aws() {
   [[ -z "$AWS_PROFILE" || "$SHOW_AWS_PROMPT" = false ]] && return
-  case "$AWS_PROFILE" in
-    *-prod|*production*) prompt_segment red yellow  "\uf270  ${AWS_PROFILE:gs/%/%%}" ;;
-    *) prompt_segment 215 black "\uf270  ${AWS_PROFILE:gs/%/%%}" ;;
+  case "${(L)AWS_PROFILE}" in
+    *-dev|*-test) prompt_segment 215 black  "\uf270  ${AWS_PROFILE:gs/%/%%}" ;;
+    *) prompt_segment 215 black "\uf270 \uf421  ${AWS_PROFILE:gs/%/%%}" ;;
+  esac
+}
+
+#Azure subscription:
+# - display active azure-cli subscription name
+# - displays a warning symbol if the  name DOES NOT end in stage or non-prod (case-insensitive)
+prompt_azure() {
+  [[ "$SHOW_AZURE_PROMPT" = false ]] && return
+  local azure_sub="$(jq -r '.subscriptions[] | select(.isDefault == true) | .name' ~/.azure/azureProfile.json)"
+  case "${(L)azure_sub}" in
+    none) return ;;
+    *stage|*non-prod) prompt_segment 32 black "󰌀  ${azure_sub:gs/%/%%}" ;;
+    *) prompt_segment 32 black  "󰌀 \uf421  ${azure_sub:gs/%/%%}" ;;
   esac
 }
 
@@ -267,17 +278,23 @@ prompt_kubectl() {
   if [[ ! -a "$kubectl_config" ]]; then
     return
   fi
-
   # Get current context
   if type yq &> /dev/null; then
     kubectl_context="$(yq -r '. as $root | .contexts[] | select(.name == $root.current-context) | (.name // "") + ((" @ " + .context.namespace) // "")' $kubectl_config)"
   else
     kubectl_context="$(grep "current-context:" $kubectl_config | sed "s/current-context: //" | tr -d '"')"
   fi
-  # set prompt if context exists
-  if [[ -n "$kubectl_context" ]]; then
-    prompt_segment 251 black "\u2388  $kubectl_context"
-  fi
+  # set prompt if context exists and is not "none"
+  # set a warning icon if context is labeled as prod,live,etc
+  case "${(L)kubectl_context}" in
+    none|"") return ;;
+    *-live|*-ops|*-production|*-prod|prod-*)
+      prompt_segment 251 black "\u2388 \uf421  $kubectl_context"
+    ;;
+    *)
+      prompt_segment 251 black "\u2388  $kubectl_context"
+    ;;
+  esac
 }
 
 ## Main prompt
@@ -287,6 +304,7 @@ build_prompt() {
   prompt_kubectl
   prompt_virtualenv
   prompt_aws
+  prompt_azure
   prompt_context
   prompt_dir
   prompt_git
