@@ -83,7 +83,7 @@ function awsp () {
 function _awsp() { local -a arguments ; arguments=( --list --unset $(sed -nr 's/\[profile ([a-zA-Z0-9_-]+)\]/\1/p' ~/.aws/config ) ) ; _describe 'values' arguments ; }
 compdef _awsp awsp
 # precmd_func
-function source_aws_profile() { [[ -s "$PROFILE_SOURCE" ]] && source "$PROFILE_SOURCE" || unset AWS_PROFILE; }
+function source_aws_profile() { [[ -s "$PROFILE_SOURCE" ]] && { source "$PROFILE_SOURCE"; export AWS_PROFILE="$AWS_PROFILE"; } || unset AWS_PROFILE; }
 ###
 ### awsp - END
 ###
