@@ -8,11 +8,17 @@ function ccat () {
         echo "error: pygmentize or chroma not in path" >&2
         return 1
     fi
-    if (( "${#@}" > 0 )); then
+    local files=()
+    local flags=()
+    local arg
+    for arg in $@; do
+      [[ "$arg" = "-"* ]] && flags+=( "$arg" ) || files+=( "$arg" )
+    done
+    if (( "${#files}" > 0 )); then
       local file
-      for file in "$@[@]"; do
+      for file in $files; do
         if [[ -f "$file" || -p "$file" ]]; then
-          eval $cmd "$file"
+          eval $cmd "$file" | cat $flags
         elif [[ -d "$file" ]]; then
           echo -e "ccat: error: '$file' is a directory\n" >&2
           return 1
@@ -22,9 +28,10 @@ function ccat () {
         fi
       done
     else
-      eval $cmd
+      eval $cmd | cat $flags
     fi 
 }
+compdef _cat ccat
 function cless () {
     local files=()
     local flags=()
@@ -48,4 +55,3 @@ function cless () {
     fi
 }
 compdef _less cless
-
