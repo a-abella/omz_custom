@@ -2,7 +2,7 @@
 #   functions should go in tools.zsh or tools.d/*.zsh
 
 # condensers
-## common
+## ls
 alias l='ll'
 alias la='ll -a'
 alias lr='ll -R'
@@ -10,6 +10,10 @@ alias lar='ll -aR'
 alias lla="ll -a"
 alias llr='ll -R'
 alias llar='ll -aR'
+## grep
+alias igrep='grep -i'
+alias eigrep='egrep -i'
+
 # azure
 alias azss='az account set --subscription'
 
