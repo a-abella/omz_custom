@@ -14,8 +14,9 @@ alias llar='ll -aR'
 ## grep
 alias igrep='grep -i'
 alias eigrep='egrep -i'
-## azure
-alias azss='az account set --subscription'
+
+## navigation
+alias omz_custom="cd $ZSH_CUSTOM"
 
 # command overrides
 alias tmux='tmux -f "$TMUX_CONF"'
@@ -26,7 +27,6 @@ alias mtime='_mtime(){ local TIMEFMT="%J  %mU user %mS system %P cpu %mE total";
 # k8s stuff
 alias kdumpall="kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl get --show-kind --ignore-not-found --all-namespaces"
 alias kcuncc="kubectl config unset current-context"
-alias kcontext="kubectl config use-context"
 
 # unfunctions - disable nuisance built-in functions
 unfunction work_in_progress
