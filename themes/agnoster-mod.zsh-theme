@@ -305,7 +305,8 @@ build_prompt() {
   prompt_virtualenv
   prompt_aws
   prompt_azure
-  prompt_context
+  # comment out prompt_context to not include user@host segment
+  # prompt_context
   prompt_dir
   prompt_git
   prompt_bzr
