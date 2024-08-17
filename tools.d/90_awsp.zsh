@@ -6,7 +6,7 @@ PROFILE_SOURCE="$HOME/.aws/source_current_profile"
 
 function awsp () {
 
-  local valid_profiles=( $(sed -nr 's/\[profile ([a-zA-Z0-9_-]+)\]/\1/p' "$HOME/.aws/config" ) )
+  IFS=$'\n' local valid_profiles=( $(sed -nr 's/\[profile ([a-zA-Z0-9_-]+)\]/\1/p' "$HOME/.aws/config" ) )
   
   usage (){
     echo "Usage: awsp (-l/--list) [(-u/--unset) | PROFILE]"
@@ -80,7 +80,7 @@ function awsp () {
   esac
 }
 # awsp completion
-function _awsp() { local -a arguments ; arguments=( --list --unset $(sed -nr 's/\[profile ([a-zA-Z0-9_-]+)\]/\1/p' ~/.aws/config ) ) ; _describe 'values' arguments ; }
+function _awsp() { local -a arguments ; IFS=$'\n' arguments=( --list --unset $(sed -nr 's/\[profile ([a-zA-Z0-9_-]+)\]/\1/p' ~/.aws/config ) ) ; _describe 'values' arguments ; }
 compdef _awsp awsp
 # precmd_func
 function source_aws_profile() { [[ -s "$PROFILE_SOURCE" ]] && { source "$PROFILE_SOURCE"; export AWS_PROFILE="$AWS_PROFILE"; } || unset AWS_PROFILE; }
