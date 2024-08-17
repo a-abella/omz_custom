@@ -1,0 +1,86 @@
+###
+### kcontext - aws context manager & sync
+###
+
+CONTEXT_SOURCE="${KUBECONFIG:-"$HOME/.kube/config"}"
+
+function kcontext () {
+
+  IFS=$'\n' local valid_contexts=( $( kubectl --kubeconfig "$CONTEXT_SOURCE" config get-contexts -o name ) )
+  
+  usage (){
+    echo "Usage: kcontext (-l/--list) [(-u/--unset) | CONTEXT]"
+    echo
+    echo "A kubectl context manager"
+    echo
+    echo "Options:"
+    echo "  -u, --unset    Sets the active context to a null entry, and inserts"
+    echo "                   the null entry to the kubeconfig if one is not found."
+    echo "                   Selected by default if no CONTEXT is supplied"
+    echo
+    echo "Arguments:"
+    echo "  CONTEXT        Name of the context to set, sourced from kubeconfig"
+    echo
+    echo "Valid CONTEXT names:"
+    printf '  - %s\n' "${valid_contexts[@]}"
+    echo
+  }
+
+  if [[ "$#" -gt 1 ]]; then
+    echo "error: incorrect number of arguments"
+    echo
+    usage
+    return
+  fi
+
+  list_contexts() {
+    printf '%s\n' "${valid_contexts[@]}"
+  }
+
+  validate_context() {
+    if ! (( ${valid_contexts[(Ie)$context]} )); then
+      echo "error: invalid context name"
+      echo
+      usage
+      return 1
+    fi
+  }
+
+  set_context() {
+    kubectl --kubeconfig "$CONTEXT_SOURCE" config use-context "$context" > /dev/null
+    echo "using context '$context'"
+  }
+
+  unset_context() {
+    kubectl --kubeconfig "$CONTEXT_SOURCE" config use-context none > /dev/null
+    echo "unset context"
+  }
+
+  case "$1" in
+    -l|--list)
+      list_contexts
+      return
+    ;;
+    -h|--help)
+      usage
+      return
+    ;;
+    -u|--unset|"")
+      unset_context
+      return
+    ;;
+    *)
+      local context="$1"
+      if validate_context ; then
+        set_context
+      fi
+      return
+    ;;
+  esac
+}
+# kcontext completion
+function _kcontext() { local -a arguments ; IFS=$'\n' arguments=( --list --unset $( kubectl --kubeconfig "$CONTEXT_SOURCE" config get-contexts -o name ) ) ; _describe 'values' arguments ; }
+compdef _kcontext kcontext
+###
+### kcontext - END
+###
