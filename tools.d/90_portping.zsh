@@ -50,8 +50,8 @@ function portping () {
 }
 # shortcut/aliases
 function sshcheck () {
-    if [[ $# -ne 1 ]]; then
-        echo 'sshcheck: error: takes exactly 1 argument' >&2
+    if [[ $# -ne 1 || "$1" == "-"* ]]; then
+        echo 'sshcheck: error: takes exactly 1 host argument' >&2
         return 1
     fi
     portping "$1" 22 1 3
