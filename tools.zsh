@@ -12,10 +12,3 @@ if [[ -d "$tools_d" ]]; then
   unset _paths
 fi
 
-function sshcheck() {
-    while true; do
-        nc -zvw1 $1 22;
-        sleep 1;
-    done
-}
-
