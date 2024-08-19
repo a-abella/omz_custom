@@ -27,6 +27,7 @@ alias mtime='_mtime(){ local TIMEFMT="%J  %mU user %mS system %P cpu %mE total";
 # k8s stuff
 alias kdumpall="kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl get --show-kind --ignore-not-found --all-namespaces"
 alias kcuncc="kubectl config unset current-context"
+alias kctx="kcontext"
 
 # unfunctions - disable nuisance built-in functions
 unfunction work_in_progress
