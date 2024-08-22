@@ -14,14 +14,13 @@ function awsp () {
     echo "An AWS-CLI profile environment variable manager & synchronizer"
     echo
     echo "Options:"
-    echo "  -u, --unset    Unsets the AWS_PROFILE environment variable,"
-    echo "                   selected by default if no PROFILE is supplied"
+    echo "  -c, --current-profile  Prints the currently selected profile"
+    echo "  -l, --list             Lists the available profiles from ~/.aws/config"
+    echo "  -u, --unset            Unsets the AWS_PROFILE environment variable,"
+    echo "                          selected by default if no PROFILE is supplied"
     echo
     echo "Arguments:"
-    echo "  PROFILE        Name of the profile to set, sourced from .aws/config"
-    echo
-    echo "Valid PROFILE names:"
-    printf '  - %s\n' "${valid_profiles[@]}"
+    echo "  PROFILE        Name of the profile to set, sourced from ~/.aws/config"
     echo
   }
 
@@ -45,6 +44,9 @@ function awsp () {
     fi
   }
 
+  get_profile() {
+    echo "$AWS_PROFILE"
+  }
   set_profile() {
     touch "$PROFILE_SOURCE" && dotenv -f "$PROFILE_SOURCE" set AWS_PROFILE="$profile"
     echo "using profile '$profile'"
@@ -58,6 +60,10 @@ function awsp () {
   }
 
   case "$1" in
+    -c|--current-profile)
+      get_profile
+      return
+    ;;
     -l|--list)
       list_profiles
       return
@@ -80,7 +86,7 @@ function awsp () {
   esac
 }
 # awsp completion
-function _awsp() { local -a arguments ; IFS=$'\n' arguments=( --list --unset $(sed -nr 's/\[profile ([a-zA-Z0-9_-]+)\]/\1/p' ~/.aws/config ) ) ; _describe 'values' arguments ; }
+function _awsp() { local -a arguments ; IFS=$'\n' arguments=( --current-profile --list --unset $(sed -nr 's/\[profile ([a-zA-Z0-9_-]+)\]/\1/p' ~/.aws/config ) ) ; _describe 'values' arguments ; }
 compdef _awsp awsp
 # precmd_func
 function source_aws_profile() { [[ -s "$PROFILE_SOURCE" ]] && { source "$PROFILE_SOURCE"; export AWS_PROFILE="$AWS_PROFILE"; } || unset AWS_PROFILE; }

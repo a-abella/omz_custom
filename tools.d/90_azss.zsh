@@ -14,6 +14,10 @@ function azss () {
     echo "An Azure-CLI subscription manager"
     echo
     echo "Options:"
+    echo "  -c, --current-subscription"
+    echo "                 Prints the currently selected subscription name"
+    echo "  -l, --list     Lists the available subscriptions from"
+    echo "                   ~/.azure/azureProfile.json"
     echo "  -u, --unset    Sets the active subscription to a null entry, and"
     echo "                   inserts the null entry to azureProfile.json if one"
     echo "                   is not found."
@@ -22,9 +26,6 @@ function azss () {
     echo "Arguments:"
     echo "  SUBSCRIPTION     Name of the subscription to set, sourced from"
     echo "                     ~/.azure/azureProfile.json"
-    echo
-    echo "Valid SUBSCRIPTION names:"
-    printf '  - %s\n' "${valid_subscriptions[@]}"
     echo
   }
 
@@ -48,6 +49,10 @@ function azss () {
     fi
   }
 
+  get_subscription() {
+    jq -r '.subscriptions[] | select(.isDefault==true) | if .name == "none" then empty else .name end' "$subscription_file" 
+  }
+
   set_subscription() {
     az account set --subscription "$subscription"
     echo "using subscription '$subscription'"
@@ -66,6 +71,10 @@ function azss () {
   }
 
   case "$1" in
+    -c|--current-subscription)
+      get_subscription
+      return
+    ;;
     -l|--list)
       list_subscriptions
       return
@@ -89,7 +98,7 @@ function azss () {
   esac
 }
 # azss completion
-function _azss() { local -a arguments ; IFS=$'\n' arguments=( --list --unset $( jq -r '.subscriptions[].name' "$HOME/.azure/azureProfile.json" ) ) ; _describe 'values' arguments ; }
+function _azss() { local -a arguments ; IFS=$'\n' arguments=( --current-subscription --list --unset $( jq -r '.subscriptions[].name' "$HOME/.azure/azureProfile.json" ) ) ; _describe 'values' arguments ; }
 compdef _azss azss
 ###
 ### azss - END

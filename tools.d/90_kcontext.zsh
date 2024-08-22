@@ -14,15 +14,14 @@ function kcontext () {
     echo "A kubectl context manager"
     echo
     echo "Options:"
-    echo "  -u, --unset    Sets the active context to a null entry, and inserts"
-    echo "                   the null entry to the kubeconfig if one is not found."
-    echo "                   Selected by default if no CONTEXT is supplied"
+    echo "  -c, --current-context  Prints the name of the currently selected context"
+    echo "  -l, --list             Lists the available context names from kubeconfig"
+    echo "  -u, --unset            Sets the active context to a null entry, and inserts"
+    echo "                          the null entry to the kubeconfig if one is not found."
+    echo "                          Selected by default if no CONTEXT is supplied"
     echo
     echo "Arguments:"
     echo "  CONTEXT        Name of the context to set, sourced from kubeconfig"
-    echo
-    echo "Valid CONTEXT names:"
-    printf '  - %s\n' "${valid_contexts[@]}"
     echo
   }
 
@@ -46,6 +45,10 @@ function kcontext () {
     fi
   }
 
+  get_context() {
+    kubectl --kubeconfig "$CONTEXT_SOURCE" config current-context
+  }
+
   set_context() {
     kubectl --kubeconfig "$CONTEXT_SOURCE" config use-context "$context" > /dev/null
     echo "using context '$context'"
@@ -57,6 +60,10 @@ function kcontext () {
   }
 
   case "$1" in
+    -c|--current-context)
+      get_context
+      return
+    ;;
     -l|--list)
       list_contexts
       return
@@ -79,7 +86,7 @@ function kcontext () {
   esac
 }
 # kcontext completion
-function _kcontext() { local -a arguments ; IFS=$'\n' arguments=( --list --unset $( kubectl --kubeconfig "$CONTEXT_SOURCE" config get-contexts -o name ) ) ; _describe 'values' arguments ; }
+function _kcontext() { local -a arguments ; IFS=$'\n' arguments=( --current-context --list --unset $( kubectl --kubeconfig "$CONTEXT_SOURCE" config get-contexts -o name ) ) ; _describe 'values' arguments ; }
 compdef _kcontext kcontext
 ###
 ### kcontext - END
