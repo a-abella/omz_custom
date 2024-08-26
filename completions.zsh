@@ -3,3 +3,4 @@
 # sourcing can be done here.
 
 source $(brew --prefix)/etc/bash_completion.d/az
+source <(fzf --zsh)
