@@ -41,4 +41,5 @@ alias kdumpall="kubectl api-resources --verbs=list --namespaced -o name | xargs 
 alias kcuncc="kubectl config unset current-context"
 alias kctx="kcontext"
 alias kcn="knamespace"
+alias kns="knamespace"
 # k8s stuff end
