@@ -280,19 +280,25 @@ prompt_kubectl() {
   fi
   # Get current context
   if type yq &> /dev/null; then
-    kubectl_context="$(yq -r '. as $root | .contexts[] | select(.name == $root.current-context) | (.name // "") + ((" @ " + .context.namespace) // "")' $kubectl_config)"
+    kubectl_context=( $(yq -r '. as $root | .contexts[] | select(.name == $root.current-context) | (.name // "") + " " + ((.context.namespace) // "")' "$kubectl_config") )
   else
-    kubectl_context="$(grep "current-context:" $kubectl_config | sed "s/current-context: //" | tr -d '"')"
+    kubectl_context=( $(grep "current-context:" $kubectl_config | sed "s/current-context: //" | tr -d '"') )
+  fi
+  local kubectl_prompt
+  if [[ -n "$kubectl_context[2]" ]]; then
+    kubectl_prompt="$kubectl_context[1] @ $kubectl_context[2]"
+  else
+    kubectl_prompt="$kubectl_context[1]"
   fi
   # set prompt if context exists and is not "none"
   # set a warning icon if context is labeled as prod,live,etc
-  case "${(L)kubectl_context}" in
+  case "${(L)kubectl_context[1]}" in
     none|"") return ;;
     *-live|*-ops|*-production|*-prod|prod-*)
-      prompt_segment 251 black "\u2388 \uf421  $kubectl_context"
+      prompt_segment 251 black "\u2388 \uf421  $kubectl_prompt"
     ;;
     *)
-      prompt_segment 251 black "\u2388  $kubectl_context"
+      prompt_segment 251 black "\u2388  $kubectl_prompt"
     ;;
   esac
 }
