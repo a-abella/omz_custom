@@ -12,3 +12,5 @@ if [[ -d "$tools_d" ]]; then
   unset _paths
 fi
 
+# stateful tools will put their configs in ~/.config
+mkdir -p "$HOME/.config"
