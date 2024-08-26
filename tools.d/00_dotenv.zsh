@@ -134,21 +134,32 @@ function _dotenv() {
         '1:command:(list get set unset)' \
         '2:variable name:->varname' \
         && return 0
-
+  
     case $state in
         (varname)
-            if [[ -s "${1:-.env}" ]]; then
-              if [[ $words[2] == "get" || $words[2] == "unset" ]]; then
-                _values "variable names" ${(f)"$(awk -F= '{print $1}' ${1:-.env})"}
-              elif [[ $words[2] == "set" ]]; then
-                _values "variable names" ${(f)"$(awk -F= '{print $1 "="}' ${1:-.env})"}
-              elif [[ $words[2] == "list" ]]; then
-                _values "variable names" "--keys"
-              fi
-            else
-              _values "variable names" ""
+          local path=".env"
+          local f_flag=""
+          if (( ${+words[(r)-f]} )); then
+            path="${words[$words[(i)-f]+1]}"
+            f_flag="-f"
+          elif (( ${+words[(r)--file]} )); then
+            path="${words[$words[(i)--file]+1]}"
+            f_flag="--file"
+          fi
+          words[$words[(i)${f_flag}]]=()
+          words[$words[(i)${path}]]=()
+          if [[ -s "${path}" ]]; then
+            if [[ $words[2] == "get" || $words[2] == "unset" ]]; then
+              _values "variable names" ${(f)"$(/usr/bin/awk -F= '{print $1}' "${path}")"}
+            elif [[ $words[2] == "set" ]]; then
+              _values "variable names" ${(f)"$(/usr/bin/awk -F= '{print $1 "="}' "${path}")"}
+            elif [[ $words[2] == "list" ]]; then
+              _values "variable names" "--keys"
             fi
-          ;;
+          else
+            _values "variable names" ""
+          fi
+        ;;
     esac
 }
 ###
