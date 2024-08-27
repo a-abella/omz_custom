@@ -192,4 +192,37 @@ function ramdisk () {
   esac
 }
 
-# TODO: completions
+compdef _ramdisk ramdisk
+_ramdisk () {
+    local state
+    local RAMDISK_STATE="$HOME/.config/ramdisk.state"
+    _arguments -s \
+      '1: :((up down list prune --help))' \
+      '*::arg:->args' \
+    && return 0
+    
+    case $state in
+      (args)
+        case $words[1] in
+          down)
+            _arguments \
+              '--name::name:->name' \
+              '--help:help' \
+              && return 0
+              
+              if [[ "${words[2]}" == "--name" ]]; then
+                _values "variable names" ${(f)"$(dotenv -f "$RAMDISK_STATE" list --keys)"}
+              fi
+          ;;
+          up)
+            _arguments \
+              '--name:name:' \
+              '--size-mb:size-mb:' \
+              '--link-path:link-path:_files' \
+              '--help:help' \
+              && return 0
+          ;;
+        esac
+      ;;
+    esac     
+}
