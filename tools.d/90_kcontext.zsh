@@ -33,7 +33,7 @@ function kcontext () {
   fi
 
   list_contexts() {
-    printf '%s\n' "${valid_contexts[@]}"
+    printf '%s\n' "${valid_contexts[@]}" | grep -v 'none'
   }
 
   validate_context() {
