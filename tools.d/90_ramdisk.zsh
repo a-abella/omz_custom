@@ -211,7 +211,7 @@ _ramdisk () {
               && return 0
               
               if [[ "${words[2]}" == "--name" ]]; then
-                _values "variable names" ${(f)"$(dotenv -f "$RAMDISK_STATE" list --keys)"}
+                _values "variable names" ${(f)"$(dotenv -f "$RAMDISK_STATE" list-keys)"}
               fi
           ;;
           up)

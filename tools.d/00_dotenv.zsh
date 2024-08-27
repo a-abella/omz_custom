@@ -15,7 +15,8 @@ function dotenv() {
     if [[ -v zopts[-h] || -v zopts[--help] ]]; then
         echo "Usage: dotenv [-f | --file <env_file>] <command> [arguments]"
         echo "Commands:"
-        echo "  list [--keys]       List all key-value pairs, or just keys with --keys"
+        echo "  list                List all key-value pairs"
+        echo "  list-keys           List all keys only"
         echo "  get <key>           Get the value for the specified key"
         echo "  set <key=value>     Set or update the specified key with a value"
         echo "  unset <key>         Remove a key"
@@ -47,15 +48,13 @@ function dotenv() {
 
     case $command in
         list)
-            # Handle the --keys flag manually
-            if [[ $# -gt 0 && $1 == "--keys" ]]; then
-                shift
-                while IFS='=' read -r key _; do
-                    echo "$key"
-                done < "$env_file"
-            else
-                cat "$env_file"
-            fi
+            cat "$env_file"
+            ;;
+        list-keys)
+            # shift
+            while IFS='=' read -r key _; do
+                echo "$key"
+            done < "$env_file"
             ;;
         get)
             key=$1
@@ -131,7 +130,7 @@ function _dotenv() {
         '--file[specify the env file]:env_file:_files' \
         '-h[display help]' \
         '--help[display help]' \
-        '1:command:(list get set unset)' \
+        '1:command:(list list-keys get set unset)' \
         '2:variable name:->varname' \
         && return 0
   
@@ -153,8 +152,6 @@ function _dotenv() {
               _values "variable names" ${(f)"$(/usr/bin/awk -F= '{print $1}' "${path}")"}
             elif [[ $words[2] == "set" ]]; then
               _values "variable names" ${(f)"$(/usr/bin/awk -F= '{print $1 "="}' "${path}")"}
-            elif [[ $words[2] == "list" ]]; then
-              _values "variable names" "--keys"
             fi
           else
             _values "variable names" ""
