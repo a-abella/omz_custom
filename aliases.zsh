@@ -44,4 +44,5 @@ alias kcuncc="kubectl config unset current-context"
 alias kctx="kcontext"
 alias kcn="knamespace"
 alias kns="knamespace"
+alias kaliases="alias | egrep --color=none '^k'"
 # k8s stuff end
