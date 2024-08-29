@@ -2,10 +2,9 @@
 ### kcontext - aws context manager & sync
 ###
 
-CONTEXT_SOURCE="${KUBECONFIG:-"$HOME/.kube/config"}"
-
 function kcontext () {
-
+  
+  local CONTEXT_SOURCE="${KUBECONFIG:-"$HOME/.kube/config"}"
   IFS=$'\n' local valid_contexts=( $( kubectl --kubeconfig "$CONTEXT_SOURCE" config get-contexts -o name ) )
   
   usage (){
@@ -86,7 +85,7 @@ function kcontext () {
   esac
 }
 # kcontext completion
-function _kcontext() { local -a arguments ; IFS=$'\n' arguments=( --current-context --list --unset $( kubectl --kubeconfig "$CONTEXT_SOURCE" config get-contexts -o name ) ) ; _describe 'values' arguments ; }
+function _kcontext() { local CONTEXT_SOURCE="${KUBECONFIG:-"$HOME/.kube/config"}" ; local -a arguments ; IFS=$'\n' arguments=( --current-context --list --unset $( kubectl --kubeconfig "$CONTEXT_SOURCE" config get-contexts -o name ) ) ; _describe 'values' arguments ; }
 compdef _kcontext kcontext
 ###
 ### kcontext - END
