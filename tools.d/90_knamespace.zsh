@@ -2,10 +2,9 @@
 ### knamespace - kubectl context namespace manager
 ###
 
-CONTEXT_SOURCE="${KUBECONFIG:-"$HOME/.kube/config"}"
-
 function knamespace () {
-
+  
+  local CONTEXT_SOURCE="${KUBECONFIG:-"$HOME/.kube/config"}"
   IFS=$'\n' local valid_namespaces=( $( kubectl --kubeconfig "$CONTEXT_SOURCE" get namespaces -o name | sed 's/^namespace\///' ) )
   
   usage (){
@@ -75,7 +74,7 @@ function knamespace () {
   esac
 }
 # knamespace completion
-function _knamespace () { local -a arguments ; IFS=$'\n' arguments=( --current-namespace --list $(kubectl --kubeconfig "$CONTEXT_SOURCE" get namespaces -o name | sed 's/^namespace\///') ) ; _describe 'values' arguments ; }
+function _knamespace () { local CONTEXT_SOURCE="${KUBECONFIG:-"$HOME/.kube/config"}" ; local -a arguments ; IFS=$'\n' arguments=( --current-namespace --list $(kubectl --kubeconfig "$CONTEXT_SOURCE" get namespaces -o name | sed 's/^namespace\///') ) ; _describe 'values' arguments ; }
 compdef _knamespace knamespace
 ###
 ### knamespace - END
