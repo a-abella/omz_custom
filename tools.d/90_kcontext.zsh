@@ -15,9 +15,8 @@ function kcontext () {
     echo "Options:"
     echo "  -c, --current-context  Prints the name of the currently selected context"
     echo "  -l, --list             Lists the available context names from kubeconfig"
-    echo "  -u, --unset            Sets the active context to a null entry, and inserts"
-    echo "                          the null entry to the kubeconfig if one is not found."
-    echo "                          Selected by default if no CONTEXT is supplied"
+    echo "  -u, --unset            Sets the active context to a null entry. Selected"
+    echo "                          by default if no CONTEXT is supplied"
     echo
     echo "Arguments:"
     echo "  CONTEXT        Name of the context to set, sourced from kubeconfig"
