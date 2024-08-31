@@ -17,6 +17,7 @@ function dotenv() {
         echo "Commands:"
         echo "  list                List all key-value pairs"
         echo "  list-keys           List all keys only"
+        echo "  list-values         List all values only"
         echo "  get <key>           Get the value for the specified key"
         echo "  set <key=value>     Set or update the specified key with a value"
         echo "  unset <key>         Remove a key"
@@ -54,6 +55,11 @@ function dotenv() {
             # shift
             while IFS='=' read -r key _; do
                 echo "$key"
+            done < "$env_file"
+            ;;
+        list-values)
+            while IFS='=' read -r _ value; do
+                echo "${(Q)value}"
             done < "$env_file"
             ;;
         get)
@@ -130,7 +136,7 @@ function _dotenv() {
         '--file[specify the env file]:env_file:_files' \
         '-h[display help]' \
         '--help[display help]' \
-        '1:command:(list list-keys get set unset)' \
+        '1:command:(list list-keys list-values get set unset)' \
         '2:variable name:->varname' \
         && return 0
   
