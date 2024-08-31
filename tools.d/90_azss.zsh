@@ -37,7 +37,7 @@ function azss () {
   fi
 
   list_subscriptions() {
-    printf '%s\n' "${valid_subscriptions[@]}" | grep -v 'none'
+    printf '%s\n' "${valid_subscriptions[@]}" | grep -v 'none' | sort
   }
 
   validate_subscription() {
