@@ -39,6 +39,12 @@ alias mtime='_mtime(){ local TIMEFMT="%J  %mU user %mS system %P cpu %mE total";
 # k8s stuff
 alias kg='kubectl get'
 alias kd='kubectl describe'
+alias kgsm='kubectl get servicemonitors.monitoring.coreos.com'
+alias kgsma='kubectl get servicemonitors.monitoring.coreos.com -A'
+alias kdsm='kubectl describe servicemonitors.monitoring.coreos.com'
+alias kgpm='kubectl get podmonitors.monitoring.coreos.com'
+alias kgpma='kubectl get podmonitors.monitoring.coreos.com -A'
+alias kdpm='kubectl describe podmonitors.monitoring.coreos.com'
 alias kdumpall="kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl get --show-kind --ignore-not-found --all-namespaces"
 alias kcuncc="kubectl config unset current-context"
 alias kctx="kcontext"
