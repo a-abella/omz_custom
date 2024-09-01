@@ -1,13 +1,31 @@
 function ccat () {
     local cmd
-    if command -v pygmentize &>/dev/null; then
-        cmd="pygmentize -g -O style=nord-darker"
-    elif command -v chroma &>/dev/null; then
-        cmd="chroma --style=dracula --formatter=terminal256"
-    else
-        echo "error: pygmentize or chroma not in path" >&2
-        return 1
-    fi
+    
+    validate_formatter () {
+        if ! command -v "$1" &>/dev/null; then
+            echo -e "ccat: error: selected formatter '$1' not found\n" >&2
+            return 1
+        fi
+    }
+
+    set_formatter () {
+        case "$1" in
+            chroma)
+                cmd="chroma --style=nord --formatter=terminal16m"
+            ;;
+            pygmentize)
+                cmd="pygmentize -g -O style=nord -O formatter=terminal16m"
+            ;;
+            *)
+                echo -e "ccat: error: invalid formatter '$CCAT_FORMATTER', must be 'chroma' or 'pygmentize'\n" >&2
+                return 1
+            ;;
+        esac
+        validate_formatter "$1" || return 1
+    }
+    # default to pygmentize
+    set_formatter "${CCAT_FORMATTER:-pygmentize}" || return 1
+    
     local files=()
     local flags=()
     local arg
