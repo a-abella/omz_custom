@@ -9,29 +9,50 @@ function ccat () {
     }
 
     set_formatter () {
-        case "$1" in
-            chroma)
-                cmd="chroma --style=nord --formatter=terminal16m"
-            ;;
-            pygmentize)
-                cmd="pygmentize -g -O style=nord -O formatter=terminal16m"
-            ;;
-            *)
-                echo -e "ccat: error: invalid formatter '$CCAT_FORMATTER', must be 'chroma' or 'pygmentize'\n" >&2
-                return 1
-            ;;
-        esac
-        validate_formatter "$1" || return 1
+      case "$1" in
+        chroma)
+          if [[ -n "$2" ]]; then
+            cmd="chroma --style=nord --formatter=terminal16m --lexer=$2"    
+          else
+            cmd="chroma --style=nord --formatter=terminal16m"
+          fi
+          ;;
+        pygmentize)
+          if [[ -n "$2" ]]; then
+            cmd="pygmentize -O style=nord -f terminal16m -l $2"
+          else
+            cmd="pygmentize -g -O style=nord -f terminal16m"
+          fi
+          ;;
+        *)
+          echo -e "ccat: error: invalid formatter '$CCAT_FORMATTER', must be 'chroma' or 'pygmentize'\n" >&2
+          return 1
+          ;;
+      esac
+      validate_formatter "$1" || return 1
     }
-    # default to pygmentize
-    set_formatter "${CCAT_FORMATTER:-pygmentize}" || return 1
+    
+    local lang
+    if [[ "$@[(I)-l|--lang]" -gt 0 && -n "$@[$@[(I)-l|--lang]+1]" ]]; then
+      lang="${@[$@[(I)-l|--lang]+1]}"
+      unset "argv[(I)$lang]"
+      unset "argv[(I)-l|--lang]"
+    fi
     
     local files=()
     local flags=()
     local arg
     for arg in $@; do
-      [[ "$arg" = "-"* ]] && flags+=( "$arg" ) || files+=( "$arg" )
+      if [[ "$arg" = "-"* ]]; then
+        flags+=( "$arg" )
+      else
+        files+=( "$arg" )
+      fi
     done
+    
+    # default to pygmentize
+    set_formatter "${CCAT_FORMATTER:-pygmentize}" "$lang" || return 1
+    
     if (( "${#files}" > 0 )); then
       local file
       for file in $files; do
@@ -51,6 +72,16 @@ function ccat () {
 }
 compdef _cat ccat
 function cless () {
+    local lang lang_arg
+    if [[ "$@[(I)-l|--lang]" -gt 0 && -n "$@[$@[(I)-l|--lang]+1]" ]]; then
+      lang="${@[$@[(I)-l|--lang]+1]}"
+      unset "argv[(I)$lang]"
+      unset "argv[(I)-l|--lang]"
+    fi
+    if [[ -n "$lang" ]]; then
+      lang_arg=("--lang" "$lang")
+    fi
+  
     local files=()
     local flags=()
     local arg
@@ -63,13 +94,13 @@ function cless () {
         return 1
       fi
       local hold
-      hold="$(ccat "$files")"
+      hold="$(ccat $lang_arg "$files")"
       if [[ -n "$hold" ]]; then
         # the {} and sleep is needed to handle a screen buffer piping issue
         { sleep 0.01; echo -e "$hold" ;} | less -R $flags
       fi
     else 
-      ccat | less -R $flags
+      ccat $lang_arg | less -R $flags
     fi
 }
 compdef _less cless
