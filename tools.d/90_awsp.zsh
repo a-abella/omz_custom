@@ -9,7 +9,7 @@ function awsp () {
   IFS=$'\n' local valid_profiles=( $(sed -nr 's/\[profile ([a-zA-Z0-9_-]+)\]/\1/p' "$HOME/.aws/config" ) )
   
   usage (){
-    echo "Usage: awsp (-l/--list) [(-u/--unset) | PROFILE]"
+    echo "Usage: awsp (--login) (-c/--current) (-l/--list) [(-u/--unset) | PROFILE]"
     echo
     echo "An AWS-CLI profile environment variable manager & synchronizer"
     echo
@@ -18,6 +18,8 @@ function awsp () {
     echo "  -l, --list             Lists the available profiles from ~/.aws/config"
     echo "  -u, --unset            Unsets the AWS_PROFILE environment variable,"
     echo "                          selected by default if no PROFILE is supplied"
+    echo "  --login                Selects a profile from the available profile"
+    echo "                          list and preforms an SSO login on it"
     echo
     echo "Arguments:"
     echo "  PROFILE        Name of the profile to set, sourced from ~/.aws/config"
@@ -59,6 +61,11 @@ function awsp () {
     echo "unset profile"
   }
 
+  do_login() {
+    local prf_arr=( $(awsp -l) )
+    aws --profile "$prf_arr[1]" sso login
+  }
+
   case "$1" in
     -c|--current-profile)
       get_profile
@@ -76,6 +83,10 @@ function awsp () {
       unset_profile
       return
     ;;
+    --login)
+      do_login
+      return
+    ;;
     *)
       local profile="$1"
       if validate_profile ; then
@@ -86,7 +97,7 @@ function awsp () {
   esac
 }
 # awsp completion
-function _awsp() { local -a arguments ; IFS=$'\n' arguments=( --current-profile --list --unset $(sed -nr 's/\[profile ([a-zA-Z0-9_-]+)\]/\1/p' ~/.aws/config ) ) ; _describe 'values' arguments ; }
+function _awsp() { local -a arguments ; IFS=$'\n' arguments=( --current-profile --list --login --unset $(sed -nr 's/\[profile ([a-zA-Z0-9_-]+)\]/\1/p' ~/.aws/config ) ) ; _describe 'values' arguments ; }
 compdef _awsp awsp
 # precmd_func
 function source_aws_profile() { [[ -s "$PROFILE_SOURCE" ]] && { source "$PROFILE_SOURCE"; export AWS_PROFILE="$AWS_PROFILE"; } || unset AWS_PROFILE; }
