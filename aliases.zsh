@@ -45,6 +45,7 @@ alias kdsm='kubectl describe servicemonitors.monitoring.coreos.com'
 alias kgpm='kubectl get podmonitors.monitoring.coreos.com'
 alias kgpma='kubectl get podmonitors.monitoring.coreos.com -A'
 alias kdpm='kubectl describe podmonitors.monitoring.coreos.com'
+alias kgcrd='kubectl get crd'
 alias kdumpall="kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl get --show-kind --ignore-not-found --all-namespaces"
 alias kcuncc="kubectl config unset current-context"
 alias kctx="kcontext"
