@@ -228,7 +228,7 @@ prompt_dir() {
 # Virtualenv: current working virtualenv
 prompt_virtualenv() {
   if [[ -n "$VIRTUAL_ENV" && -n "$VIRTUAL_ENV_DISABLE_PROMPT" ]]; then
-    prompt_segment blue black "(${VIRTUAL_ENV:t:gs/%/%%})"
+    prompt_segment yellow black "(%F{blue}\ued1b\e[0m ${VIRTUAL_ENV:t:gs/%/%%})"
   fi
 }
 
@@ -252,10 +252,17 @@ prompt_status() {
 prompt_aws() {
   [[ -z "$AWS_PROFILE" || -z "$_AWS_PROFILE" || "$SHOW_AWS_PROMPT" = false ]] && return
   local pr_string="${_AWS_PROFILE}"
-  if [[ -z "${SSH_CONNECTION}" ]]; then
-    pr_string="${${pr_string%%${pr_string#* * }*}//  / }"
-  fi
-  prompt_segment 215 black "$pr_string"
+  #if [[ -z "${SSH_CONNECTION}" ]]; then
+  #  pr_string="${${pr_string%%${pr_string#* * }*}//  / }"
+  #fi
+  prompt_segment 215 black "${${pr_string%%${pr_string#* * }*}//  / }"
+}
+status_aws () {
+  [[ -z "$AWS_PROFILE" || -z "$_AWS_PROFILE" || "$SHOW_AWS_PROMPT" = false ]] && return
+  local pr_string="${_AWS_PROFILE}"
+  #prompt_segment NONE 215 "%F{#9e622a}  \e[3m${pr_string#*  }\e[0m "
+  prompt_segment NONE 215 "%F{#676f7a}  \e[3m${pr_string#*  }\e[0m "
+  return 2
 }
 
 #Azure subscription:
@@ -264,10 +271,17 @@ prompt_aws() {
 prompt_azure() {
   [[ -z "$_AZURE_SUBSCRIPTION" || "$SHOW_AZURE_PROMPT" = false ]] && return
   local pr_string="${_AZURE_SUBSCRIPTION}"
-  if [[ -z "${SSH_CONNECTION}" ]]; then
-    pr_string="${${pr_string%%${pr_string#* * }*}//  / }"
-  fi
-  prompt_segment 32 black "$pr_string"
+  #if [[ -z "${SSH_CONNECTION}" ]]; then
+  #  pr_string="${${pr_string%%${pr_string#* * }*}//  / }"
+  #fi
+  prompt_segment 32 black "${${pr_string%%${pr_string#* * }*}//  / }"
+}
+status_azure() {
+  [[ -z "$_AZURE_SUBSCRIPTION" || "$SHOW_AZURE_PROMPT" = false ]] && return
+  local pr_string="${_AZURE_SUBSCRIPTION}"
+  #prompt_segment NONE 32 "%F{#2a5d94}󰌀  \e[3m${pr_string#*  }\e[0m "
+  prompt_segment NONE 32 "%F{#676f7a}󰌀  \e[3m${pr_string#*  }\e[0m "
+  return 2
 }
 
 #Kubernetes context
@@ -276,18 +290,37 @@ prompt_kubectl() {
     return
   fi
   local pr_string="${_KUBE_CONTEXT}"
-  if [[ -z "${SSH_CONNECTION}" ]]; then
-    pr_string="${${pr_string%%${pr_string#* * }*}//  / }"
+  #if [[ -z "${SSH_CONNECTION}" ]]; then
+  #  pr_string="${${pr_string%%${pr_string#* * }*}//  / }"
+  #fi
+  prompt_segment 251 black "${${pr_string%%${pr_string#* * }*}//  / }"
+}
+status_kubectl() {
+  if [[ ! -n "$_KUBE_CONTEXT" ]]; then
+    return
   fi
-  prompt_segment 251 black "$pr_string"
+  local pr_string="${_KUBE_CONTEXT}"
+  #prompt_segment NONE '\033[38;2;54;85;88m' "\e[3m$pr_string\e[0m "
+  prompt_segment NONE 251 "%F{#676f7a}⎈  \e[3m${pr_string#*  }\e[0m "
+  return 2
+}
+
+## status line
+status_line() {
+  local s
+  status_kubectl; s+="$?"
+  status_aws; s+="$?"
+  status_azure; s+="$?"
+  [[ "$s" -gt 0 ]] && echo && CURRENT_BG='NONE'
 }
 
 ## Main prompt
 build_prompt() {
   RETVAL=$?
+  status_line
   prompt_status
-  prompt_kubectl
   prompt_virtualenv
+  prompt_kubectl
   prompt_aws
   prompt_azure
   # comment out prompt_context to not include user@host segment

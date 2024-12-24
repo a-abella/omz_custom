@@ -100,7 +100,19 @@ function awsp () {
 function _awsp() { local -a arguments ; IFS=$'\n' arguments=( --current-profile --list --login --unset $(sed -nr 's/\[profile ([a-zA-Z0-9_-]+)\]/\1/p' ~/.aws/config ) ) ; _describe 'values' arguments ; }
 compdef _awsp awsp
 # precmd_func
-function source_aws_profile() { [[ -s "$PROFILE_SOURCE" ]] && { source "$PROFILE_SOURCE"; export AWS_PROFILE="$AWS_PROFILE"; } || unset AWS_PROFILE; }
+function source_aws_profile() { 
+  [[ -s "$PROFILE_SOURCE" ]] && { 
+    source "$PROFILE_SOURCE"
+    export AWS_PROFILE="$AWS_PROFILE"
+  } || unset AWS_PROFILE
+  local aws_pr="${AWS_PROFILE}"
+  case "${(L)aws_pr}" in
+    "") unset _AWS_PROFILE ; return ;;
+    *-dev|*-test) aws_pr="  ${AWS_PROFILE:gs/%/%%}" ;;
+    *) aws_pr="   ${AWS_PROFILE:gs/%/%%}" ;;
+  esac
+  export _AWS_PROFILE="$aws_pr"
+}
 ###
 ### awsp - END
 ###

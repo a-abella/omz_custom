@@ -320,6 +320,53 @@ function _kcontext () {
   return $ret
 }
 compdef _kcontext kcontext
+# precmd_func
+function source_kube_context() { 
+  # Exit if kubectl is not configured
+  local kubectl_config="$HOME/.kube/config"
+  local alias_file="$HOME/.kube/kcontext_aliases"
+  local kubectl_context
+  if [[ ! -e "$kubectl_config" ]]; then
+    unset _KUBE_CONTEXT
+    return
+  fi
+  # Get current context
+  if type yq &> /dev/null; then
+    kubectl_context=( $(yq -r '. as $root | .contexts[] | select(.name == $root.current-context) | (.name // "") + "
+" + ((.context.namespace) // "")' "$kubectl_config") )
+  else
+    kubectl_context=( $(grep "current-context:" $kubectl_config | sed "s/current-context: //" | tr -d '"') )
+  fi
+  # Get alias if it exists
+  if [[ -e "$alias_file" ]]; then
+    local alias
+    alias=$(dotenv -f "$alias_file" get "$kubectl_context[1]")
+    if [[ -n "$alias" ]]; then
+      kubectl_context[1]="$alias"
+    fi
+  fi
+  # format context @ namepsace if namespace was found
+  local kubectl_prompt
+  if [[ -n "$kubectl_context[2]" ]]; then
+    kubectl_prompt="$kubectl_context[1] @ $kubectl_context[2]"
+  else
+    kubectl_prompt="$kubectl_context[1]"
+  fi
+  # set a value if context exists and is not "none"
+  # set a warning icon if context is labeled as prod,live,etc
+  case "${(L)kubectl_context[1]}" in
+    none|"")
+        unset kubectl_prompt
+    ;;
+    *-live|*-ops|*-production|*-prod|prod-*)
+      kubectl_prompt="⎈   $kubectl_prompt"
+    ;;
+    *)
+      kubectl_prompt="⎈  $kubectl_prompt"
+    ;;
+  esac
+  export _KUBE_CONTEXT="$kubectl_prompt"
+}
 ###
 ### kcontext - END
 ###

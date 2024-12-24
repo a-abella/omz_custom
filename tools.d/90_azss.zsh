@@ -100,6 +100,22 @@ function azss () {
 # azss completion
 function _azss() { local -a arguments ; IFS=$'\n' arguments=( --current-subscription --list --unset $( jq -r '.subscriptions[].name' "$HOME/.azure/azureProfile.json" ) ) ; _describe 'values' arguments ; }
 compdef _azss azss
+# precmd
+function source_azure_subscription() {
+  local azure_prompt
+  local azure_file="$HOME/.azure/azureProfile.json"
+  if [[ ! -s "$azure_file" ]]; then
+    unset _AZURE_SUBSCRIPTION
+    return
+  fi
+  local azure_sub="$(jq -r '.subscriptions[] | select(.isDefault == true) | .name' "$azure_file")"
+  case "${(L)azure_sub}" in
+    none) unset _AZURE_SUBSCRIPTION ; return ;;
+    *stage|*non-prod) azure_prompt="󰌀  ${azure_sub:gs/%/%%}" ;;
+    *) azure_prompt="󰌀   ${azure_sub:gs/%/%%}" ;;
+  esac
+  export _AZURE_SUBSCRIPTION="$azure_prompt"
+}
 ###
 ### azss - END
 ###
