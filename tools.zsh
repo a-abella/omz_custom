@@ -1,5 +1,5 @@
 # source all tools.d/*.zsh
-tools_d="$HOME/.oh-my-zsh/custom/tools.d"
+tools_d="$HOME/.zsh_custom/tools.d"
 if [[ -d "$tools_d" ]]; then
   setopt +o nomatch
   local _paths=( "$tools_d"/**/*.zsh "$tools_d"/**/*.sh )

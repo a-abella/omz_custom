@@ -3,8 +3,9 @@
 #   unfunction and unlias declarations can go here
 
 
+# ZIM - not needed
 # unfunctions - disable nuisance built-in functions
-unfunction work_in_progress
+#unfunction work_in_progress
 # unfunctions end
 
 # unaliases - disable built-in aliases, usually for overriding with functions

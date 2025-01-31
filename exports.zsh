@@ -4,7 +4,7 @@
 export PATH="$PATH:~/.oh-my-zsh/custom/bin"
 
 # tmux conf location
-export TMUX_CONF="$HOME/.oh-my-zsh/custom/confs/tmux-custom.conf"
+export TMUX_CONF="$HOME/.zsh_custom/confs/tmux-custom.conf"
 
 # set ccat formatter command
 export CCAT_FORMATTER=chroma
