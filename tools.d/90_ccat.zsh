@@ -57,7 +57,7 @@ function ccat () {
       local file
       for file in $files; do
         if [[ -f "$file" || -p "$file" ]]; then
-          eval $cmd "$file" | cat $flags
+          eval $cmd \"$file\" | cat $flags
         elif [[ -d "$file" ]]; then
           echo -e "ccat: error: '$file' is a directory\n" >&2
           return 1
