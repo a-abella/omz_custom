@@ -17,10 +17,11 @@ fi
 
 # Depends on prompt-pwd module to show pwd information
 zstyle ':zim:prompt-pwd:tail' length 3
+zstyle ':zim:prompt-pwd:fish-style' dir-length 33
 
 # Depends on custom kcontext/knamespace tooling
 add-zsh-hook precmd source_kube_context
 
-PS1='╭─%B%(?.%F{green}.%F{red}) %F{blue}$(prompt-pwd)${_KUBE_CONTEXT:+" %F{#939c9e}${_KUBE_CONTEXT}"}${(e)git_info[prompt]}${VIRTUAL_ENV:+" %F{green} ${VIRTUAL_ENV:t}"}%f%b
+PS1='╭─%B%(?.%F{green}.%F{red}) %F{blue}$(prompt-pwd)${_KUBE_CONTEXT:+" %F{#a9afb0}${_KUBE_CONTEXT}"}${(e)git_info[prompt]}${VIRTUAL_ENV:+" %F{green} ${VIRTUAL_ENV:t}"}%f%b
 ╰─%B%(!.#.$)%b '
 RPS1='%B%(?..%F{red}%? ↵%f)%b'
