@@ -27,6 +27,9 @@ alias eigrep='egrep -i'
 ## base64
 alias be='base64'
 alias bd='base64 -d'
+# pbcopy
+alias pbc='pbcopy'
+alias pbp='pbpaste'
 
 ## navigation
 alias omz_custom="cd $ZSH_CUSTOM"
@@ -34,6 +37,7 @@ alias omz_custom="cd $ZSH_CUSTOM"
 
 # command overrides
 alias tmux='tmux -f "$TMUX_CONF"'
+alias pbcopy="perl -0 -pe 's/\n\Z//' | pbcopy"   # strips trailing newlines from pbcopy input
 # command overrides end
 
 # oneline funcs
@@ -65,6 +69,7 @@ alias ktnm="kubectl top nodes --sort-by memory"
 alias ktp="kubectl top pods"
 alias ktpc="kubectl top pods --sort-by cpu"
 alias ktpm="kubectl top pods --sort-by memory"
+alias kgcmy="kubectl get configmaps -o yaml"
 # k8s stuff end
 
 # git stuff

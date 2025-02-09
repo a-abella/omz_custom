@@ -54,5 +54,9 @@ function sshcheck () {
         echo 'sshcheck: error: takes exactly 1 host argument' >&2
         return 1
     fi
-    portping "$1" 22 1 3
+    local this_host="$1"
+    if [[ "$1" == *"@"* ]]; then
+        this_host="${1#*@}"
+    fi
+    portping "$this_host" 22 1 3
 }
