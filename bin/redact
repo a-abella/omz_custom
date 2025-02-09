@@ -1,61 +1,197 @@
 #!/usr/bin/env python3
 
-import yaml
-import sys
-import re
-import os
-import time
-
-REDACTION = "[REDACTED - ({name})]"
-
-# get all *.y*ml files in the current directory
-f_prefix = os.path.dirname(os.path.realpath(__file__)) + "/resources/redact"
-yaml_files = [f"{f_prefix}/{f}" for f in os.listdir(f_prefix) if f.endswith(".yaml") or f.endswith(".yml")]
-
-if len(sys.argv) > 2:
-    with open(sys.argv[1], "r") as f:
-        RULES = yaml.safe_load(f)
-    with open(sys.argv[2], "rb", ) as f:
-        DATA = f.read().decode("utf-8", "ignore")
-else:
-    RULES = {'patterns': []}
-    for y in yaml_files:
-        with open(y, "r") as f:
-            r = yaml.safe_load(f)
-            RULES["patterns"].extend(r["patterns"])
-    with open(sys.argv[1], "rb") as f:
-        DATA = f.read().decode("utf-8", "ignore")
+try:
+    import argparse
+    import yaml
+    import sys
+    import re
+    import os
+    import time
+    import shutil
+except ImportError as e:
+    print(f"Error importing module: {e}")
+    sys.exit(1)
+except Exception as e:
+    print(f"Error: {e}")
+    sys.exit(1)
 
 
+def get_args():
+    parser = argparse.ArgumentParser(description="Redact strings from files using regex patterns.")
 
-for i in RULES["patterns"]:
-    pattern = i["pattern"]
-    name = pattern.get('name')
-    regex = pattern.get('regex')
-    confidence = pattern.get('confidence')
-    # if confidence != "high":
-    #     continue
-    start_time = time.time()
+    parser.add_argument(
+        "-p", "--pattern",
+        type=str,
+        metavar="PATTERN_FILE",
+        help="Path to the pattern file; if not specified, uses a default pattern set matching common senstive and PII patterns."
+    )
+    
+    parser.add_argument(
+        "-c", "--confidence",
+        type=str,
+        metavar="CONFIDENCE",
+        choices=["low", "med", "high"],
+        default="med",
+        help="Confidence level of the patterns to redact; defaults to `med`."
+    )
 
-    result_string = DATA
+    parser.add_argument(
+        "-w", "--write",
+        type=str,
+        metavar="OUT_FILE",
+        help="Path to the redacted output file; if not specified, prints to stdout."
+    )
+
+    parser.add_argument(
+        "input_file",
+        nargs="?",
+        type=str,
+        metavar="INPUT_FILE",
+        help="Input file; if not specified, reads from stdin."
+    )
+    
+    parser.add_argument(
+        "-q", "--quiet",
+        action="store_true",
+        help="Suppress redaction report output."
+    )
+
+    return parser.parse_args()
+
+
+
+args = get_args()
+
+RULES = {}
+# handle patterns
+if args.pattern:
     try:
-        result_string = re.sub(regex, REDACTION.replace("{name}", name), DATA, flags=re.IGNORECASE)
+        with open(args.pattern, "r") as f:
+            RULES[os.path.basename(args.pattern)] = yaml.safe_load(f)
     except Exception as e:
-        print(e)
-        print(f"EXCEPTION: *** Name: {name}")
+        print(f"Error loading pattern file: {e}")
+        sys.exit(1)
+else:
+    try:
+        # default pattern set
+        # get all *.y*ml files in the current directory
+        f_prefix = os.path.dirname(os.path.realpath(__file__)) + "/resources/redact"
+        yaml_files = [f"{f_prefix}/{f}" for f in os.listdir(f_prefix) if f.endswith(".yaml") or f.endswith(".yml")]
+        for y in yaml_files:
+            with open(y, "r") as f:
+                r = yaml.safe_load(f)
+                # RULES["patterns"].extend(r["patterns"])
+                RULES[os.path.basename(y)] = r
+    except Exception as e:
+        print(f"Error loading default pattern set: {e}")
+        sys.exit(1)
 
-    if result_string != DATA:
-        #print(f"*** Data updated. Rule: {name}")
-        DATA = result_string
 
-    end_time = time.time()
+# handle input file
+try:
+    if args.input_file:
+        with open(args.input_file, "rb") as f:
+            DATA = f.read().decode("utf-8", "ignore")
+    else:
+        DATA = sys.stdin.read()
+except Exception as e:
+    print(f"Error reading input file: {e}")
+    sys.exit(1)
 
-    execution_time = end_time - start_time
-    #print(f"Name: {name}\t Confidence: {confidence}\t Regex: {regex}\n\n")
-    #print(f"Execution time: {execution_time} seconds")
-    #print("*" * 50)
 
+# do redaction
+REPORT = {
+    "overall": {
+        "total_time_seconds": 0,
+        "total_sub_count": 0
+    }
+}
+for source, val in RULES.items():
+    
+    if source not in REPORT:
+        REPORT[source] = {
+            "per_pattern": [],
+        }
+    
+    for i in val["patterns"]:
+        pattern = i["pattern"]
+        name = pattern.get('name')
+        regex = pattern.get('regex')
+        confidence = pattern.get('confidence')
+        confidence_map = {
+            "low": 1,
+            "med": 2,
+            "medium": 2,
+            "high": 3
+        }
+        if args.confidence:
+            if confidence_map[confidence] < confidence_map[args.confidence]:
+                continue
+            
+        start_time = time.time()
 
-# with open("redacted-output.txt", "w") as f:
-#     f.write(DATA)
-print(DATA)
+        result_string = DATA
+        try:
+            result_string, sub_count = re.subn(regex, f"[REDACTED - ({name})]", DATA, flags=re.IGNORECASE)
+        except Exception as e:
+            print(e)
+            print(f"EXCEPTION: *** Name: {name}")
+
+        end_time = time.time()
+        execution_time = end_time - start_time
+        
+        REPORT["overall"]["total_time_seconds"] += execution_time
+            
+        if sub_count > 0:
+            REPORT[source]["per_pattern"].append({
+                "name": name,
+                "confidence": confidence,
+                "sub_count": sub_count,
+                "time_seconds": execution_time
+            })
+            REPORT["overall"]["total_sub_count"] += sub_count
+            
+            DATA = result_string
+
+# handle output file
+if args.write:
+    with open(args.write, "wb") as f:
+        f.write(DATA.encode("utf-8"))
+else:
+    sys.stdout.write(DATA)
+
+# handle report
+if not args.quiet:
+    if REPORT:
+        # print report table to stderr
+        # Get terminal size
+        columns, _ = shutil.get_terminal_size()
+
+        # Define column widths dynamically
+        col_widths = {
+            "Time (s)": int(columns * 0.1),
+            "Pattern Source": int(columns * 0.23),  # increased by 3 columns
+            "Pattern Name": int(columns * 0.35),  # increased by 5 columns
+            "Confidence": int(columns * 0.2),
+            "Sub Count": int(columns * 0.1)
+        }
+
+        # Print header
+        print('\n\n', file=sys.stderr)
+        header = f"{'Time (s)':<{col_widths['Time (s)']}}{'Pattern Source':<{col_widths['Pattern Source']}}{'Pattern Name':<{col_widths['Pattern Name']}}{'Confidence':<{col_widths['Confidence']}}{'Sub Count':<{col_widths['Sub Count']}}"
+        print(header, file=sys.stderr)
+        print('-' * columns, file=sys.stderr)
+
+        # Print report data
+        for source, val in REPORT.items():
+            if source == "overall":
+                continue
+            for i in val["per_pattern"]:
+                row = f"{i['time_seconds']:<{col_widths['Time (s)']}.4f}{source:<{col_widths['Pattern Source']}}{i['name']:<{col_widths['Pattern Name']}}{i['confidence']:<{col_widths['Confidence']}}{i['sub_count']:<{col_widths['Sub Count']}}"
+                print(row, file=sys.stderr)
+
+        # Print footer
+        print('-' * columns, file=sys.stderr)
+        total_row = f"{REPORT['overall']['total_time_seconds']:<{col_widths['Time (s)']}.4f}{'Total':<{col_widths['Pattern Source']}}{'':<{col_widths['Pattern Name']}}{'':<{col_widths['Confidence']}}{REPORT['overall']['total_sub_count']:<{col_widths['Sub Count']}}"
+        print(total_row, file=sys.stderr)
+        print('\n', file=sys.stderr)
