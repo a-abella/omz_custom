@@ -1,5 +1,8 @@
 # random exports
 
+# path
+export PATH="$PATH:~/.oh-my-zsh/custom/bin"
+
 # tmux conf location
 export TMUX_CONF="$HOME/.oh-my-zsh/custom/confs/tmux-custom.conf"
 

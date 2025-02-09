@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+
+import yaml
+import sys
+import re
+import os
+import time
+
+REDACTION = "[REDACTED - ({name})]"
+
+# get all *.y*ml files in the current directory
+f_prefix = "resources/redact"
+yaml_files = [f"{f_prefix}/{f}" for f in os.listdir(f_prefix) if f.endswith(".yaml") or f.endswith(".yml")]
+
+if len(sys.argv) > 2:
+    with open(sys.argv[1], "r") as f:
+        RULES = yaml.safe_load(f)
+    with open(sys.argv[2], "rb", ) as f:
+        DATA = f.read().decode("utf-8", "ignore")
+else:
+    RULES = {'patterns': []}
+    for y in yaml_files:
+        with open(y, "r") as f:
+            r = yaml.safe_load(f)
+            RULES["patterns"].extend(r["patterns"])
+    with open(sys.argv[1], "rb") as f:
+        DATA = f.read().decode("utf-8", "ignore")
+
+
+
+for i in RULES["patterns"]:
+    pattern = i["pattern"]
+    name = pattern.get('name')
+    regex = pattern.get('regex')
+    confidence = pattern.get('confidence')
+    # if confidence != "high":
+    #     continue
+    start_time = time.time()
+
+    result_string = DATA
+    try:
+        result_string = re.sub(regex, REDACTION.replace("{name}", name), DATA, flags=re.IGNORECASE)
+    except Exception as e:
+        print(e)
+        print(f"EXCEPTION: *** Name: {name}")
+
+    if result_string != DATA:
+        #print(f"*** Data updated. Rule: {name}")
+        DATA = result_string
+
+    end_time = time.time()
+
+    execution_time = end_time - start_time
+    #print(f"Name: {name}\t Confidence: {confidence}\t Regex: {regex}\n\n")
+    #print(f"Execution time: {execution_time} seconds")
+    #print("*" * 50)
+
+
+# with open("redacted-output.txt", "w") as f:
+#     f.write(DATA)
+print(DATA)
