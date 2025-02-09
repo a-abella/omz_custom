@@ -93,7 +93,10 @@ try:
         with open(args.input_file, "rb") as f:
             DATA = f.read().decode("utf-8", "ignore")
     else:
-        DATA = sys.stdin.read()
+        try:
+            DATA = sys.stdin.read()
+        except KeyboardInterrupt:
+            sys.exit(130)
 except Exception as e:
     print(f"Error reading input file: {e}")
     sys.exit(1)
