@@ -9,7 +9,7 @@ import time
 REDACTION = "[REDACTED - ({name})]"
 
 # get all *.y*ml files in the current directory
-f_prefix = "resources/redact"
+f_prefix = os.path.dirname(os.path.realpath(__file__)) + "/resources/redact"
 yaml_files = [f"{f_prefix}/{f}" for f in os.listdir(f_prefix) if f.endswith(".yaml") or f.endswith(".yml")]
 
 if len(sys.argv) > 2:
