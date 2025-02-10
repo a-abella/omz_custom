@@ -27,10 +27,11 @@ alias eigrep='egrep -i'
 ## base64
 alias be='base64'
 alias bd='base64 -d'
-# pbcopy
+## pbcopy
 alias pbc='pbcopy'
 alias pbp='pbpaste'
-
+## exit code
+alias '?'='echo $?'
 ## navigation
 alias omz_custom="cd $ZSH_CUSTOM"
 # condensers end
