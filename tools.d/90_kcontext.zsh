@@ -34,6 +34,7 @@ function kcontext () {
     echo "                                   context"
     echo "  -ua CONTEXT, --unalias CONTEXT  Unsets the alias for the specified CONTEXT, if it exists. If"
     echo "                                   no CONTEXT is supplied, the current context is used"
+    echo "  -cc, --clear-cache              Clears the 'cached-aws' IAM token cache files for EKS contexts"
     echo
     echo "Arguments:"
     echo "  CONTEXT        Name of the context or context-alias to use"
@@ -70,6 +71,7 @@ function kcontext () {
     [-u_lower]=1 [-u_upper]=1 [--unset_lower]=1 [--unset_upper]=1
     [-a_lower]=2 [-a_upper]=3 [--alias_lower]=2 [--alias_upper]=3
     [-ua_lower]=1 [-ua_upper]=2 [--unalias_lower]=1 [--unalias_upper]=2
+    [-cc_lower]=1 [-cc_upper]=1 [--clear-cache_lower]=1 [--clear-cache_upper]=1
   )
   if [[ -n "${argcounts[${1}_lower]}" ]]; then
     if [[ "$#" -lt "${argcounts[${1}_lower]}" || "$#" -gt "${argcounts[${1}_upper]}" ]]; then
@@ -206,6 +208,10 @@ function kcontext () {
     echo "alias '$als' for context '$ctx' removed"
   }
 
+  clear_cache() {
+    rm "$HOME"/.kube/cache/aws-*.cache
+  }
+
   case "$1" in
     -c|--current-context)
       get_context
@@ -250,6 +256,10 @@ function kcontext () {
       unalias_context "$context"
       return
     ;;
+    -cc|--clear-cache)
+      clear_cache
+      return
+    ;;
     -*)
       echo "error: invalid option"
       echo
@@ -291,6 +301,7 @@ function _kcontext () {
               -u --unset
               -a --alias
               -ua --unalias
+              -cc --clear-cache
             )
       fi            
       _values 'kcontext command' $vals

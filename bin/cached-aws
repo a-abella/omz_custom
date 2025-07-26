@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -o pipefail
+CACHE_FILE="${HOME}/.kube/cache/aws-${AWS_PROFILE}${AWS_EKS_CLUSTER}.cache"
+MAXTIME=800
+if [ -f $CACHE_FILE ]; then
+    TS_DB=$(stat -t "%s" ${CACHE_FILE} | cut -d' ' -f10 | tr -d '"')
+    AGE=$(( `date +%s` - $TS_DB ))
+    if [[ $AGE -le $MAXTIME ]]; then
+        cat ${CACHE_FILE}
+    else
+        if output=$(aws "$@"); then
+            echo "${output}" | tee "$CACHE_FILE"
+        fi
+    fi
+else
+    if output=$(aws "$@"); then
+        echo "${output}" | tee "$CACHE_FILE"
+    fi
+fi

@@ -5,6 +5,7 @@
 
 # ZIM - not needed
 # unfunctions - disable nuisance built-in functions
+## moved to ~/.aliases
 #unfunction work_in_progress
 # unfunctions end
 
@@ -30,6 +31,8 @@ alias bd='base64 -d'
 ## pbcopy
 alias pbc='pbcopy'
 alias pbp='pbpaste'
+## less
+alias nless='less -NS'
 ## exit code
 alias '?'='echo $?'
 ## navigation
@@ -63,7 +66,6 @@ alias kcuncc="kubectl config unset current-context"
 alias kctx="kcontext"
 alias kcn="knamespace"
 alias kns="knamespace"
-alias kaliases="alias | egrep --color=none '^k'"
 alias ktn="kubectl top nodes"
 alias ktnc="kubectl top nodes --sort-by cpu"
 alias ktnm="kubectl top nodes --sort-by memory"
@@ -71,6 +73,10 @@ alias ktp="kubectl top pods"
 alias ktpc="kubectl top pods --sort-by cpu"
 alias ktpm="kubectl top pods --sort-by memory"
 alias kgcmy="kubectl get configmaps -o yaml"
+alias kgsecy="kubectl get secrets -o yaml"
+alias kgwl="kubectl get deployments.apps,daemonsets.apps,statefulsets.apps,cronjobs.batch"
+alias kgnot="kubectl get nodes -L node.kubernetes.io/instance-type,eks.amazonaws.com/capacityType"
+alias kaliases="alias | egrep --color=none '^k'"
 # k8s stuff end
 
 # git stuff

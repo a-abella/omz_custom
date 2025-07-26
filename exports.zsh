@@ -15,3 +15,4 @@ export LC_ALL=en_US.UTF-8
 
 # unset aws-cli pager, default to no paging
 export AWS_PAGER=
+
