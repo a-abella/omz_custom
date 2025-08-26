@@ -3,6 +3,9 @@
 # path
 export PATH="$PATH:$HOME/.zsh_custom/bin"
 
+# editor
+export EDITOR="/usr/bin/vim"
+
 # tmux conf location
 export TMUX_CONF="$HOME/.zsh_custom/confs/tmux-custom.conf"
 
