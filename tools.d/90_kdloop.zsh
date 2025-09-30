@@ -1,7 +1,7 @@
 # looper
-IFS=$'\n' _k_api_resources=( $(kubectl api-resources --verbs=list -o name) )
 function kdloop () {
-    if  [[ -n "$1"i ]] && (( "${_k_api_resources[(Ie)$1]}" )) ; then
+  IFS=$'\n' _k_api_resources=( $(kubectl api-resources --verbs=list -o name) )
+  if  [[ -n "$1"i ]] && (( "${_k_api_resources[(Ie)$1]}" )) ; then
     wl="$1"
     shift
   else

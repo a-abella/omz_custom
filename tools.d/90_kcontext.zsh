@@ -127,12 +127,12 @@ function kcontext () {
 
   get_context() {
     local ctx als
-    ctx="$(kubectl --kubeconfig "$CONTEXT_SOURCE" config current-context)"
+    ctx="$(yq '.current-context // ""' "$CONTEXT_SOURCE" 2>/dev/null)"
     als="$(dotenv -f "$ALIAS_FILE" get "$ctx")"
     echo "${als:-$ctx}"
   }
   get_context_raw() {
-    kubectl --kubeconfig "$CONTEXT_SOURCE" config current-context
+    yq '.current-context // ""' "$CONTEXT_SOURCE" 2>/dev/null
   }
 
   set_context() {
