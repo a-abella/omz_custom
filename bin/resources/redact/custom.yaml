@@ -10,6 +10,10 @@ patterns:
       regex: \btbh\b
       confidence: high
   - pattern:
+      name: Job
+      regex: ensora(\s*health)?
+      confidence: high
+  - pattern:
       name: Job-Brand
       regex: echo\s*vantage|\bthera\w+\b|code\s+metro|sharenote|newcrop|catalyst|data\s*finch|dft|accupoint|apex|procentive|\bmcp\b|\bkasa\w*\b|\ba2c\b|tenelven|\b10e11\b|\b1011\b
       confidence: high

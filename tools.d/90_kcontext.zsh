@@ -6,7 +6,8 @@ function kcontext () {
   
   local CONTEXT_SOURCE="${KUBECONFIG:-"$HOME/.kube/config"}"
   local ALIAS_FILE="${HOME}/.kube/kcontext_aliases"
-  IFS=$'\n' local valid_contexts=( $( kubectl --kubeconfig "$CONTEXT_SOURCE" config get-contexts -o name ) )
+  #IFS=$'\n' local valid_contexts=( $( kubectl --kubeconfig "$CONTEXT_SOURCE" config get-contexts -o name ) )
+  local valid_contexts=( $(yq -r '.contexts[].name | select(.!="none")' "$CONTEXT_SOURCE") )
   IFS=$'\n' local valid_aliases=( $(dotenv -f "$ALIAS_FILE" list-values) )
   
   usage (){

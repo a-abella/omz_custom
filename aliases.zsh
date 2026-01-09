@@ -47,6 +47,7 @@ alias pbcopy="perl -0 -pe 's/\n\Z//' | pbcopy"   # strips trailing newlines from
 # oneline funcs
 alias mtime='_mtime(){ local TIMEFMT="%J  %mU user %mS system %P cpu %mE total"; time $@; unset _mtime; }; _mtime'
 alias shuid='_shuid(){ python3 -c "import random; print(\"\".join( [ x.lower() if random.randint(0,1) else x for x in \"$(uuidgen |  head -c12 | tail -c9 | tr A-Z a-z)\" ] ))"; }; _shuid'
+alias header='_header(){ printf "\n\n===---===---===  %s  ===---===---===\n" "$@"; }; _header'
 # oneline funcs end
 
 # k8s stuff
@@ -76,6 +77,7 @@ alias kgcmy="kubectl get configmaps -o yaml"
 alias kgsecy="kubectl get secrets -o yaml"
 alias kgwl="kubectl get deployments.apps,daemonsets.apps,statefulsets.apps,cronjobs.batch"
 alias kgnot="kubectl get nodes -L node.kubernetes.io/instance-type,eks.amazonaws.com/capacityType"
+alias kdbg="kubectl debug -it --image=ghcr.io/nicolaka/netshoot:latest --env ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE=\"fg=#505050\""
 alias kaliases="alias | egrep --color=none '^k'"
 # k8s stuff end
 
