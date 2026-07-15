@@ -62,8 +62,7 @@ function awsp () {
   }
 
   do_login() {
-    local prf_arr=( $(awsp -l) )
-    aws --profile "$prf_arr[1]" sso login
+    aws --profile "$profile" sso login
   }
 
   case "$1" in
@@ -84,6 +83,9 @@ function awsp () {
       return
     ;;
     --login)
+      local prf_arr=( $(awsp -l) )
+      local profile="$(get_profile)"
+      [ -z "$profile" ] && local profile="${prf_arr[1]}"
       do_login
       return
     ;;

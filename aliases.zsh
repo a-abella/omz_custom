@@ -37,6 +37,8 @@ alias nless='less -NS'
 alias '?'='echo $?'
 ## navigation
 alias omz_custom="cd $ZSH_CUSTOM"
+# utility
+alias resh="exec $SHELL -l"
 # condensers end
 
 # command overrides
@@ -76,7 +78,7 @@ alias ktpm="kubectl top pods --sort-by memory"
 alias kgcmy="kubectl get configmaps -o yaml"
 alias kgsecy="kubectl get secrets -o yaml"
 alias kgwl="kubectl get deployments.apps,daemonsets.apps,statefulsets.apps,cronjobs.batch"
-alias kgnot="kubectl get nodes -L node.kubernetes.io/instance-type,eks.amazonaws.com/capacityType"
+alias kgnot="kubectl get nodes -L node.kubernetes.io/instance-type,scheduling.cast.ai/node-template"
 alias kdbg="kubectl debug -it --image=ghcr.io/nicolaka/netshoot:latest --env ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE=\"fg=#505050\""
 alias kaliases="alias | egrep --color=none '^k'"
 # k8s stuff end
